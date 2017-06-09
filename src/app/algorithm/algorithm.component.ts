@@ -1,6 +1,12 @@
 import {Component, OnInit, Input} from '@angular/core';
 
-type Letter = {
+type CheckLetter = {
+    letter: string,
+    isShown: boolean,
+    isEmpty: boolean
+}
+
+type PickLetter = {
     letter: string,
     isShown: boolean,
     isWrong: boolean
@@ -17,8 +23,8 @@ export class AlgorithmComponent implements OnInit {
 
     private currentLetter: number;
 
-    public checkArray: Letter[];
-    public pickArray: Letter[];
+    public checkArray: CheckLetter[];
+    public pickArray: PickLetter[];
 
     constructor() {
     }
@@ -28,44 +34,60 @@ export class AlgorithmComponent implements OnInit {
 
         let lettersArray: string[] = this.word.split('');
 
-        this.checkArray = this.getLetters(lettersArray, false, true);
-
-        this.pickArray = this.getLetters(lettersArray, true, false);
-        this.pickArray = this.getRandomArray(this.pickArray);
+        this.checkArray = this.getCheckLetters(lettersArray);
+        this.pickArray = this.getPickLetters(lettersArray);
     }
 
-    // получает массив объектов Letter из массива букв
-    private getLetters(lettersArray: string[], isShown: boolean, allowEmpty: boolean): Letter[] {
-        let array: Letter[] = [];
+    // получает массив объектов CheckLetter из массива букв
+    private getCheckLetters(lettersArray: string[]): CheckLetter[] {
+        let array: CheckLetter[] = [];
 
-        // в одном из массивов пробелы между словами пропускаем
         for (let letter of lettersArray) {
-            if (!letter.trim() && !allowEmpty) {
-                continue;
-            }
-
             array.push({
                 letter: letter,
-                isShown: isShown,
-                isWrong: false
+                isShown: false,
+                isEmpty: letter.trim() ? false : true
             });
         }
 
         return array;
     }
 
+    // получает массив объектов PickLetter из массива букв
+    private getPickLetters(lettersArray: string[]): PickLetter[] {
+        let array: PickLetter[] = [];
+
+        for (let letter of lettersArray) {
+            // пробелы не пишем
+            if (letter.trim()) {
+                array.push({
+                    letter: letter,
+                    isShown: true,
+                    isWrong: false
+                });
+            }
+        }
+
+        return this.getRandomArray(array);
+    }
+
     // обработчик клика по букве
     public selectPickLetter(num: number): void {
+        // если текущая буква - пробел, то пропустим ее
         if (!this.checkArray[this.currentLetter].letter.trim()) {
             this.currentLetter++;
         }
 
         // если правильно
         if (this.pickArray[num].letter == this.checkArray[this.currentLetter].letter) {
+            // проверяемую букву покажем
             this.checkArray[this.currentLetter].isShown = true;
+
+            // нажатую скроем
             this.pickArray[num].isShown = false;
 
             this.currentLetter++;
+
         } else {
             // если НЕ правильно
             this.setWrongAnswer(num);
@@ -74,7 +96,9 @@ export class AlgorithmComponent implements OnInit {
         // конец теста
         if (this.currentLetter == this.checkArray.length) {
             // здесь отсылать "наверх" сообщение о конце теста
-            alert('The end !');
+            setTimeout(() => {
+                alert('The end !');
+            }, 500);
         }
     }
 
@@ -89,19 +113,21 @@ export class AlgorithmComponent implements OnInit {
         })(num), 500);
     }
 
-    private getRandomArray(array: Letter[]): Letter[] {
-        let newArray: Letter[] = [];
+    // перемешивает элементы массива
+    private getRandomArray(array: PickLetter[]): PickLetter[] {
+        let newArray: PickLetter[] = [];
         let min: number = 0;
 
         while (array.length > 0) {
             let max: number = array.length;
-            let letter: Letter = array.splice(this.getRandomInt(min, max), 1)[0];
+            let letter: PickLetter = array.splice(this.getRandomInt(min, max), 1)[0];
             newArray.push(letter);
         }
 
         return newArray;
     }
 
+    // возвращает случайное число
     private getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min)) + min;
     }

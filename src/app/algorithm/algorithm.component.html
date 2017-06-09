@@ -6,7 +6,8 @@
     <ul class="selection__checklist">
         <li *ngFor="let item of checkArray"
             class="selection__check-letter"
-            [class.selection-hidden]="!item.isShown">
+            [class.selection-hidden]="!item.isShown"
+            [class.selection__empty]="item.isEmpty">
             {{ item.letter }}
         </li>
     </ul>
