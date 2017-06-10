@@ -5,9 +5,9 @@
 
     <ul class="selection__checklist">
         <li *ngFor="let item of checkArray"
-            class="selection__check-letter"
-            [class.selection-hidden]="!item.isShown"
-            [class.selection__empty]="item.isEmpty">
+            [ngClass]="{'selection__check-letter': true,
+                        'selection-hidden': !item.isShown,
+                        'selection__empty': item.isEmpty}">
             {{ item.letter }}
         </li>
     </ul>
@@ -16,8 +16,8 @@
 
     <ul class="selection__pick-list">
         <li *ngFor="let item of pickArray; let i = index"
-            class="selection__pick-letter"
-            [class.selection-wrong]="item.isWrong"
+            [ngClass]="{'selection__pick-letter': true,
+                        'selection-wrong': item.isWrong}"
             [style.display]="item.isShown ? 'block' : 'none'"
             (click)="selectPickLetter(i)">
             {{ item.letter }}
